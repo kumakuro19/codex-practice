@@ -16,6 +16,8 @@ const RAIN_CODES = new Set([
   51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99,
 ]);
 const CLOUDY_CODES = new Set([2, 3, 45, 48]);
+const COORDS_CACHE_KEY = "weather_coords_cache_v1";
+const COORDS_CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -106,6 +108,46 @@ function getCurrentPosition() {
   });
 }
 
+function loadCachedCoords() {
+  try {
+    const raw = localStorage.getItem(COORDS_CACHE_KEY);
+    if (!raw) return null;
+
+    const cached = JSON.parse(raw);
+    if (!cached || typeof cached !== "object") return null;
+    if (typeof cached.latitude !== "number" || typeof cached.longitude !== "number") {
+      return null;
+    }
+    if (typeof cached.savedAt !== "number") return null;
+
+    const age = Date.now() - cached.savedAt;
+    if (age > COORDS_CACHE_MAX_AGE_MS) return null;
+
+    return {
+      latitude: cached.latitude,
+      longitude: cached.longitude,
+    };
+  } catch (error) {
+    console.warn("Failed to load cached coords.", error);
+    return null;
+  }
+}
+
+function saveCachedCoords(latitude, longitude) {
+  try {
+    localStorage.setItem(
+      COORDS_CACHE_KEY,
+      JSON.stringify({
+        latitude,
+        longitude,
+        savedAt: Date.now(),
+      })
+    );
+  } catch (error) {
+    console.warn("Failed to save cached coords.", error);
+  }
+}
+
 async function fetchCurrentWeather(latitude, longitude) {
   const url =
     `https://api.open-meteo.com/v1/forecast?latitude=${latitude}` +
@@ -142,16 +184,20 @@ async function fetchCurrentWeather(latitude, longitude) {
 }
 
 async function applyWeatherTheme() {
-  let coords = TOKYO_COORDS;
+  const cachedCoords = loadCachedCoords();
+  let coords = cachedCoords || TOKYO_COORDS;
 
-  try {
-    const position = await getCurrentPosition();
-    coords = {
-      latitude: position.coords.latitude,
-      longitude: position.coords.longitude,
-    };
-  } catch (error) {
-    console.warn("Using Tokyo fallback coordinates.", error);
+  if (!cachedCoords) {
+    try {
+      const position = await getCurrentPosition();
+      coords = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+      };
+      saveCachedCoords(coords.latitude, coords.longitude);
+    } catch (error) {
+      console.warn("Using fallback coordinates.", error);
+    }
   }
 
   try {

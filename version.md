@@ -138,3 +138,15 @@
 - `docs/styles.css`
 - `docs/tracker.html`
 - `docs/tracker.js`
+
+### 10. LP再訪時の位置情報再確認を抑制
+- 天気取得用の座標キャッシュを追加
+  - 保存キー: `weather_coords_cache_v1`
+  - 有効期限: 24時間
+- キャッシュがある場合は `getCurrentPosition()` を呼ばず、保存済み座標で天気を取得
+- キャッシュがない初回のみ位置情報取得を実行し、取得成功時に座標を保存
+- 開発用 `frontend` と公開用 `docs` の両方に反映
+
+## 修正対象ファイル
+- `frontend/app.js`
+- `docs/app.js`
