@@ -49,7 +49,8 @@ body.theme-night {
 }
 
 .hero,
-.features {
+.features,
+.weather-board {
   width: min(960px, 100%);
   background: var(--card);
   border: 1px solid var(--line);
@@ -100,6 +101,39 @@ h1 {
   font-size: clamp(1.4rem, 2.2vw, 1.9rem);
 }
 
+.weather-board h2 {
+  margin: 0;
+  font-size: clamp(1.3rem, 2.1vw, 1.7rem);
+}
+
+.weather-grid {
+  margin: 20px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.weather-item {
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fbfdff;
+}
+
+.weather-item dt {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.weather-item dd {
+  margin: 8px 0 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
 .feature-list {
   list-style: none;
   margin: 20px 0 0;
@@ -137,8 +171,13 @@ h1 {
 
 @media (max-width: 640px) {
   .hero,
-  .features {
+  .features,
+  .weather-board {
     padding: 28px 20px;
+  }
+
+  .weather-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .feature-list {

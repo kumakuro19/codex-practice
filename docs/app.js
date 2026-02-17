@@ -27,6 +27,58 @@ function setTheme(themeClass, label) {
   }
 }
 
+function setWeatherDetails(current, timezone) {
+  const tempEl = document.getElementById("weatherTemp");
+  const feelsLikeEl = document.getElementById("weatherFeelsLike");
+  const windEl = document.getElementById("weatherWind");
+  const timeEl = document.getElementById("weatherTime");
+
+  if (tempEl) {
+    tempEl.textContent =
+      typeof current.temperature_2m === "number"
+        ? `${current.temperature_2m.toFixed(1)}℃`
+        : "--";
+  }
+
+  if (feelsLikeEl) {
+    feelsLikeEl.textContent =
+      typeof current.apparent_temperature === "number"
+        ? `${current.apparent_temperature.toFixed(1)}℃`
+        : "--";
+  }
+
+  if (windEl) {
+    windEl.textContent =
+      typeof current.wind_speed_10m === "number"
+        ? `${current.wind_speed_10m.toFixed(1)} km/h`
+        : "--";
+  }
+
+  if (timeEl) {
+    if (!current.time) {
+      timeEl.textContent = "--";
+      return;
+    }
+
+    const observedAt = new Date(current.time);
+    if (Number.isNaN(observedAt.getTime())) {
+      timeEl.textContent = "--";
+      return;
+    }
+
+    const formatted = new Intl.DateTimeFormat("ja-JP", {
+      timeZone: timezone || "Asia/Tokyo",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(observedAt);
+
+    timeEl.textContent = formatted;
+  }
+}
+
 function classifyWeather(weatherCode, isDay) {
   if (isDay === 0) {
     return { themeClass: "theme-night", label: "Night" };
@@ -65,7 +117,9 @@ function getCurrentPosition() {
 async function fetchCurrentWeather(latitude, longitude) {
   const url =
     `https://api.open-meteo.com/v1/forecast?latitude=${latitude}` +
-    `&longitude=${longitude}&current=weather_code,is_day`;
+    `&longitude=${longitude}` +
+    "&current=weather_code,is_day,temperature_2m,apparent_temperature,wind_speed_10m,time" +
+    "&timezone=auto";
 
   const response = await fetch(url);
   if (!response.ok) {
@@ -86,7 +140,14 @@ async function fetchCurrentWeather(latitude, longitude) {
     throw new Error("Weather code is invalid.");
   }
 
-  return classifyWeather(weatherCode, isDay);
+  const weather = classifyWeather(weatherCode, isDay);
+
+  return {
+    themeClass: weather.themeClass,
+    label: weather.label,
+    current,
+    timezone: data.timezone,
+  };
 }
 
 async function applyWeatherTheme() {
@@ -105,9 +166,11 @@ async function applyWeatherTheme() {
   try {
     const weather = await fetchCurrentWeather(coords.latitude, coords.longitude);
     setTheme(weather.themeClass, weather.label);
+    setWeatherDetails(weather.current, weather.timezone);
   } catch (error) {
     console.error(error);
     setTheme("theme-cloudy", "Cloudy");
+    setWeatherDetails({}, "Asia/Tokyo");
   }
 }
 

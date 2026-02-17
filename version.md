@@ -48,3 +48,27 @@
 - GitHub Pages 用の相対パス指定は維持
   - `href="./styles.css"`
   - `src="./app.js"`
+
+### 6. 天気ダッシュボード機能を追加
+- 現在天気のテーマ切り替えに加えて、数値情報を表示するUIを追加
+  - 気温
+  - 体感温度
+  - 風速
+  - 観測時刻
+- Open-Meteo API の取得項目を拡張
+  - `temperature_2m`
+  - `apparent_temperature`
+  - `wind_speed_10m`
+  - `time`
+  - `timezone=auto`
+- APIレスポンスを使ってダッシュボード表示を更新する処理を実装
+- モバイルでも崩れないよう、ダッシュボードをレスポンシブ対応
+- 開発用 `frontend` と公開用 `docs` の両方に同じ変更を反映
+
+## 追加・更新対象ファイル
+- `frontend/index.html`
+- `frontend/styles.css`
+- `frontend/app.js`
+- `docs/index.html`
+- `docs/styles.css`
+- `docs/app.js`
