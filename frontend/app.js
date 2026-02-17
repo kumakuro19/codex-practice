@@ -17,6 +17,10 @@ const RAIN_CODES = new Set([
 ]);
 const CLOUDY_CODES = new Set([2, 3, 45, 48]);
 
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
 function setTheme(themeClass, label) {
   document.body.classList.remove(...THEME_CLASSES);
   document.body.classList.add(themeClass);
@@ -27,11 +31,23 @@ function setTheme(themeClass, label) {
   }
 }
 
-function setWeatherDetails(current, timezone) {
+function applyDynamicBackground(temperature, humidity) {
+  const safeTemp = typeof temperature === "number" ? clamp(temperature, 0, 40) : 20;
+  const safeHumidity = typeof humidity === "number" ? clamp(humidity, 0, 100) : 50;
+
+  // Temperature: 0C(blue) -> 40C(warm orange)
+  const hue = Math.round(220 - (safeTemp / 40) * 190);
+  // Humidity: adjust saturation only
+  const saturation = Math.round(35 + (safeHumidity / 100) * 55);
+
+  document.body.style.setProperty("--bg-hue", String(hue));
+  document.body.style.setProperty("--bg-sat", `${saturation}%`);
+}
+
+function setWeatherDetails(current) {
   const tempEl = document.getElementById("weatherTemp");
-  const feelsLikeEl = document.getElementById("weatherFeelsLike");
+  const humidityEl = document.getElementById("weatherHumidity");
   const windEl = document.getElementById("weatherWind");
-  const timeEl = document.getElementById("weatherTime");
 
   if (tempEl) {
     tempEl.textContent =
@@ -40,10 +56,10 @@ function setWeatherDetails(current, timezone) {
         : "--";
   }
 
-  if (feelsLikeEl) {
-    feelsLikeEl.textContent =
-      typeof current.apparent_temperature === "number"
-        ? `${current.apparent_temperature.toFixed(1)}℃`
+  if (humidityEl) {
+    humidityEl.textContent =
+      typeof current.relative_humidity_2m === "number"
+        ? `${Math.round(current.relative_humidity_2m)}%`
         : "--";
   }
 
@@ -52,30 +68,6 @@ function setWeatherDetails(current, timezone) {
       typeof current.wind_speed_10m === "number"
         ? `${current.wind_speed_10m.toFixed(1)} km/h`
         : "--";
-  }
-
-  if (timeEl) {
-    if (!current.time) {
-      timeEl.textContent = "--";
-      return;
-    }
-
-    const observedAt = new Date(current.time);
-    if (Number.isNaN(observedAt.getTime())) {
-      timeEl.textContent = "--";
-      return;
-    }
-
-    const formatted = new Intl.DateTimeFormat("ja-JP", {
-      timeZone: timezone || "Asia/Tokyo",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    }).format(observedAt);
-
-    timeEl.textContent = formatted;
   }
 }
 
@@ -118,7 +110,7 @@ async function fetchCurrentWeather(latitude, longitude) {
   const url =
     `https://api.open-meteo.com/v1/forecast?latitude=${latitude}` +
     `&longitude=${longitude}` +
-    "&current=weather_code,is_day,temperature_2m,apparent_temperature,wind_speed_10m,time" +
+    "&current=weather_code,is_day,temperature_2m,relative_humidity_2m,wind_speed_10m" +
     "&timezone=auto";
 
   const response = await fetch(url);
@@ -146,7 +138,6 @@ async function fetchCurrentWeather(latitude, longitude) {
     themeClass: weather.themeClass,
     label: weather.label,
     current,
-    timezone: data.timezone,
   };
 }
 
@@ -166,11 +157,16 @@ async function applyWeatherTheme() {
   try {
     const weather = await fetchCurrentWeather(coords.latitude, coords.longitude);
     setTheme(weather.themeClass, weather.label);
-    setWeatherDetails(weather.current, weather.timezone);
+    setWeatherDetails(weather.current);
+    applyDynamicBackground(
+      weather.current.temperature_2m,
+      weather.current.relative_humidity_2m
+    );
   } catch (error) {
     console.error(error);
     setTheme("theme-cloudy", "Cloudy");
-    setWeatherDetails({}, "Asia/Tokyo");
+    setWeatherDetails({});
+    applyDynamicBackground(20, 50);
   }
 }
 

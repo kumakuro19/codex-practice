@@ -72,3 +72,39 @@
 - `docs/index.html`
 - `docs/styles.css`
 - `docs/app.js`
+
+### 7. 天気データ未表示の修正
+- Open-Meteo の `current` クエリから不正な指定を削除して取得失敗を解消
+  - 修正前: `...wind_speed_10m,time`
+  - 修正後: `...wind_speed_10m`
+- 観測時刻の表示を安定化
+  - `current.time`（`YYYY-MM-DDTHH:mm`）を安全に文字列整形して表示
+  - 取得できた `timezone` も併記
+- 開発用 `frontend` と公開用 `docs` の両方に同じ修正を反映
+
+## 修正対象ファイル
+- `frontend/app.js`
+- `docs/app.js`
+
+### 8. 天気表示項目と背景色ロジックを再設計
+- 天気ダッシュボードの表示項目を3つに整理
+  - 気温
+  - 湿度
+  - 風速
+- Open-Meteo の取得項目を要件に合わせて変更
+  - 追加: `relative_humidity_2m`
+  - 削除: `apparent_temperature`
+- 背景色を気象データ連動に変更
+  - 気温（0-40）で色相を調整
+  - 湿度（0-100）で彩度を調整
+  - 風速は表示のみで背景調整には未使用
+- 既存の天気区分（Sunny/Cloudy/Rainy/Snowy/Night）は明るさ補正として併用
+- 開発用 `frontend` と公開用 `docs` の両方に反映
+
+## 追加・更新対象ファイル
+- `frontend/index.html`
+- `frontend/styles.css`
+- `frontend/app.js`
+- `docs/index.html`
+- `docs/styles.css`
+- `docs/app.js`
