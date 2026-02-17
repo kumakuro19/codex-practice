@@ -40,3 +40,11 @@
 - `docs/index.html`
 - `docs/styles.css`
 - `docs/app.js`
+
+### 5. docs/index.html の文字化け修復
+- `docs/index.html` の日本語文字化けを修正
+- `frontend/index.html` の正しい本文をベースに `docs/index.html` を再生成
+- 文字コードを UTF-8（BOM付き）で保存し、`<meta charset="UTF-8">` と整合
+- GitHub Pages 用の相対パス指定は維持
+  - `href="./styles.css"`
+  - `src="./app.js"`
