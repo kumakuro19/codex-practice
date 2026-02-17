@@ -108,3 +108,33 @@
 - `docs/index.html`
 - `docs/styles.css`
 - `docs/app.js`
+
+### 9. 習慣トラッカー（別ページ）を追加
+- LPから遷移できる習慣トラッカーページを追加
+  - `index.html` に「習慣トラッカーへ」リンクを設置
+  - `tracker.html` を新規作成
+- 初期チェック項目（7件）を実装
+  - 1.5L飲んだ
+  - 朝食を食べた
+  - 10分以上ストレッチした
+  - 20分以上歩いた
+  - 間食を1回以内にした
+  - 就寝前30分はスマホを見なかった
+  - 0時までに就寝した
+- `localStorage` に日付単位で保存・復元する処理を実装
+  - 保存キー: `habit_tracker_v1`
+  - 再読み込み後も当日のチェック状態を復元
+- 達成率表示を追加
+  - `達成率: n/7 (xx%)`
+  - プログレスバーで可視化
+- 開発用 `frontend` と公開用 `docs` の両方に同内容を反映
+
+## 追加・更新対象ファイル
+- `frontend/index.html`
+- `frontend/styles.css`
+- `frontend/tracker.html`
+- `frontend/tracker.js`
+- `docs/index.html`
+- `docs/styles.css`
+- `docs/tracker.html`
+- `docs/tracker.js`
