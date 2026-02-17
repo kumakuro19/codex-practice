@@ -1,7 +1,11 @@
 ﻿:root {
-  font-family: "Segoe UI", sans-serif;
-  color: #182026;
-  background: #f4f7fb;
+  --bg: #f6f8fc;
+  --card: #ffffff;
+  --text: #1c2430;
+  --muted: #5c6a7a;
+  --line: #d8e0ea;
+  --accent: #1565d8;
+  --accent-hover: #0f54b5;
 }
 
 * {
@@ -10,30 +14,62 @@
 
 body {
   margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  color: var(--text);
+  background: linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
 }
 
-.container {
-  max-width: 720px;
-  margin: 64px auto;
-  padding: 32px;
-  background: #ffffff;
-  border: 1px solid #dce4ee;
-  border-radius: 12px;
+.lp {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.hero {
+  width: min(680px, 100%);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 40px;
+  box-shadow: 0 8px 24px rgba(20, 41, 68, 0.08);
 }
 
 h1 {
-  margin-top: 0;
+  margin: 0;
+  font-size: clamp(1.8rem, 2.8vw, 2.5rem);
+  line-height: 1.2;
 }
 
-button {
-  padding: 10px 16px;
-  border: 0;
-  border-radius: 8px;
-  background: #1f6feb;
-  color: #fff;
-  cursor: pointer;
+.lead {
+  margin: 16px 0 28px;
+  color: var(--muted);
+  line-height: 1.7;
 }
 
-button:hover {
-  background: #1458bb;
+.cta {
+  display: inline-block;
+  padding: 12px 20px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.cta:hover,
+.cta:focus-visible {
+  background: var(--accent-hover);
+}
+
+.note {
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 640px) {
+  .hero {
+    padding: 28px 20px;
+  }
 }
